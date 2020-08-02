@@ -63,7 +63,8 @@ GameManager.prototype.setup = function () {
 // Reset the game to last saved point
 GameManager.prototype.loadSavedGame = function () {
   var previousState = this.storageManager.getSavedGameState();
-
+  
+  this.actuator.continueGame()
   // Reload the game from a previous game if present
   if (previousState) {
     this.grid        = new Grid(previousState.grid.size,
