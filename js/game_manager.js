@@ -9,6 +9,8 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   this.inputManager.on("move", this.move.bind(this));
   this.inputManager.on("restart", this.restart.bind(this));
   this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
+  this.inputManager.on("saveGame", this.saveGame.bind(this));
+  this.inputManager.on("loadSavedGame", this.loadSavedGame.bind(this));
 
   this.setup();
 }
@@ -57,6 +59,39 @@ GameManager.prototype.setup = function () {
   // Update the actuator
   this.actuate();
 };
+
+// Reset the game to last saved point
+GameManager.prototype.loadSavedGame = function () {
+  var previousState = this.storageManager.getSavedGameState();
+
+  // Reload the game from a previous game if present
+  if (previousState) {
+    this.grid        = new Grid(previousState.grid.size,
+                                previousState.grid.cells); // Reload grid
+    this.score       = previousState.score;
+    this.over        = previousState.over;
+    this.won         = previousState.won;
+    this.keepPlaying = previousState.keepPlaying;
+  } else {
+    this.grid        = new Grid(this.size);
+    this.score       = 0;
+    this.over        = false;
+    this.won         = false;
+    this.keepPlaying = false;
+
+    // Add the initial tiles
+    this.addStartTiles();
+  }
+
+  // Update the actuator
+  this.actuate();
+}
+
+// Save game point 
+GameManager.prototype.saveGame = function () {
+  var gameState = this.serialize();
+  this.storageManager.setSavedGameState(gameState);
+}
 
 // Set up the initial tiles to start the game with
 GameManager.prototype.addStartTiles = function () {
